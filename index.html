@@ -1,0 +1,226 @@
+ <html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Employability Mirror</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0a0a;color:#f0ece3;font-family:Georgia,serif;min-height:100vh}
+  header{padding:28px 40px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center}
+  header h1{font-size:22px;letter-spacing:-0.5px}
+  header span{font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase}
+  .container{max-width:800px;margin:0 auto;padding:40px 24px}
+  .subtitle{font-size:13px;color:#555;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+  h2{font-size:28px;margin-bottom:8px;color:#f0ece3}
+  .description{color:#888;font-size:15px;margin-bottom:40px;line-height:1.7}
+  .card{background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:24px;margin-bottom:20px}
+  .card label{display:block;font-size:11px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:12px}
+  textarea{width:100%;background:#0d0d0d;border:1px solid #222;border-radius:4px;color:#d4cfc6;font-family:Georgia,serif;font-size:14px;line-height:1.7;padding:16px;resize:vertical;outline:none;transition:border-color 0.2s}
+  textarea:focus{border-color:#c8a96e}
+  .btn{background:#c8a96e;color:#0a0a0a;border:none;border-radius:4px;padding:14px 36px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:Georgia,serif;transition:all 0.2s;margin-top:16px}
+  .btn:disabled{background:#1a1a1a;color:#444;cursor:not-allowed}
+  .btn:hover:not(:disabled){background:#d4b87a}
+  .loading{text-align:center;padding:40px;color:#444;font-size:12px;letter-spacing:3px}
+  .bar{width:40px;height:2px;background:#c8a96e;margin:0 auto 16px;animation:pulse 1s ease-in-out infinite alternate}
+  @keyframes pulse{from{opacity:0.2}to{opacity:1}}
+  .result-section{margin-bottom:24px}
+  .result-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .result-title{font-size:11px;letter-spacing:3px;color:#888;text-transform:uppercase}
+  .score-box{display:flex;align-items:center;gap:16px;background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:20px 24px;margin-bottom:20px}
+  .score-number{font-size:48px;font-weight:700;line-height:1}
+  .score-low{color:#6ab06a}
+  .score-mid{color:#c8a96e}
+  .score-high{color:#c0604a}
+  .score-label{font-size:13px;color:#888;margin-top:4px}
+  .score-bar-wrap{flex:1;height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+  .content-box{background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:20px 24px;font-size:14px;line-height:1.8;color:#c8c0b4;white-space:pre-wrap;word-break:break-word}
+  .copy-btn{background:transparent;border:1px solid #2a2a2a;border-radius:3px;color:#555;font-size:11px;padding:6px 14px;cursor:pointer;font-family:Georgia,serif;transition:all 0.2s}
+  .copy-btn:hover{border-color:#444;color:#888}
+  .error{background:#1a0a0a;border:1px solid #3a1a1a;border-radius:4px;padding:16px;color:#c0604a;font-size:14px;margin-top:16px}
+  .tag{display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:3px;padding:4px 10px;font-size:11px;color:#888;margin:4px 4px 4px 0;letter-spacing:1px}
+  .divider{height:1px;background:#151515;margin:32px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div style="font-size:11px;letter-spacing:4px;color:#555;text-transform:uppercase;margin-bottom:4px">AI Career Tool</div>
+    <h1>Employability Mirror</h1>
+  </div>
+  <span>Free · Honest · Brutal</span>
+</header>
+
+<div class="container">
+  <div class="subtitle">The world's most honest job tool</div>
+  <h2>Why will you get rejected?</h2>
+  <p class="description">Paste a job description and your CV below. Our AI analyses the exact gap between you and the role — gives you a Rejection Risk Score, tells you exactly what's missing, and shows you free ways to fix it.</p>
+
+  <div class="card">
+    <label>Job Description</label>
+    <textarea id="jobDesc" rows="6" placeholder="Paste the full job description here..."></textarea>
+  </div>
+
+  <div class="card">
+    <label>Your CV / Resume</label>
+    <textarea id="cvText" rows="8" placeholder="Paste your full CV or resume text here..."></textarea>
+  </div>
+
+<button class="btn" id="analyseBtn" onclick="analyse()">Analyse My Chances →</button>
+
+  <div id="error" class="error" style="display:none"></div>
+
+  <div class="divider"></div>
+
+  <div id="loading" class="loading" style="display:none">
+    <div class="bar"></div>
+    ANALYSING YOUR PROFILE...
+  </div>
+
+  <div id="results" style="display:none">
+
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">Rejection Risk Score</div>
+  </div>
+  <div class="score-box">
+    <div>
+      <div class="score-number" id="scoreNum">--</div>
+      <div class="score-label" id="scoreLabel">out of 100</div>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-fill" id="scoreBar" style="width:0%"></div>
+    </div>
+    <div id="scoreVerdict" style="font-size:13px;color:#888;max-width:160px;line-height:1.5"></div>
+  </div>
+</div>
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">Why You'll Get Rejected</div>
+    <button class="copy-btn" onclick="copySection('rejection')">Copy</button>
+  </div>
+  <div class="content-box" id="rejection"></div>
+</div>
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">Missing Skills & Keywords</div>
+  </div>
+  <div id="missingSkills"></div>
+</div>
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">Free Courses to Fix the Gap</div>
+    <button class="copy-btn" onclick="copySection('courses')">Copy</button>
+  </div>
+  <div class="content-box" id="courses"></div>
+</div>
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">How to Fix Your CV for This Role</div>
+    <button class="copy-btn" onclick="copySection('cvfix')">Copy</button>
+  </div>
+  <div class="content-box" id="cvfix"></div>
+</div>
+
+<div class="result-section">
+  <div class="result-header">
+    <div class="result-title">Time to Close the Gap</div>
+  </div>
+  <div class="content-box" id="timeline"></div>
+</div>
+
+
+  </div>
+</div>
+
+<script>
+async function analyse(){
+  const job = document.getElementById('jobDesc').value.trim();
+  const cv = document.getElementById('cvText').value.trim();
+  const btn = document.getElementById('analyseBtn');
+  const err = document.getElementById('error');
+  err.style.display='none';
+
+  if(!job || !cv){
+    err.textContent='Please paste both a job description and your CV.';
+    err.style.display='block';
+    return;
+  }
+
+  btn.disabled=true;
+  document.getElementById('loading').style.display='block';
+  document.getElementById('results').style.display='none';
+
+  const prompt = `You are a brutally honest career analyst. Analyse the gap between this job description and this CV.
+
+JOB DESCRIPTION:
+${job}
+
+CV:
+${cv}
+
+Return ONLY a JSON object (no markdown, no backticks) with these exact fields:
+{
+  "score": <number 0-100, rejection risk: 0=very likely to get job, 100=certain rejection>,
+  "verdict": "<one sentence verdict>",
+  "rejection_reasons": "<3-5 brutal, specific reasons why they'll be rejected based on the gap>",
+  "missing_skills": ["skill1","skill2","skill3","skill4","skill5"],
+  "free_courses": "<3-4 specific free courses/resources on Coursera, YouTube, or Gov sites to fix the gaps, with course names>",
+  "cv_fixes": "<5 specific changes to make to the CV to better match this role>",
+  "timeline": "<realistic estimate of how long to close the gap and what to do each week>"
+}`;
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:'You are a brutally honest career analyst. Return only valid JSON, no markdown.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(i=>i.text||'').join('');
+    const clean = text.replace(/json|/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    const score = parsed.score;
+    document.getElementById('scoreNum').textContent = score;
+    const sn = document.getElementById('scoreNum');
+    sn.className = 'score-number ' + (score<40?'score-low':score<70?'score-mid':'score-high');
+    document.getElementById('scoreBar').style.width = score+'%';
+    document.getElementById('scoreBar').style.background = score<40?'#6ab06a':score<70?'#c8a96e':'#c0604a';
+    document.getElementById('scoreVerdict').textContent = parsed.verdict;
+    document.getElementById('rejection').textContent = parsed.rejection_reasons;
+    const ms = document.getElementById('missingSkills');
+    ms.innerHTML = parsed.missing_skills.map(s=><span class="tag">${s}</span>).join('');
+    document.getElementById('courses').textContent = parsed.free_courses;
+    document.getElementById('cvfix').textContent = parsed.cv_fixes;
+    document.getElementById('timeline').textContent = parsed.timeline;
+
+    document.getElementById('results').style.display='block';
+  } catch(e){
+    err.textContent='Something went wrong. Please try again.';
+    err.style.display='block';
+  } finally{
+    btn.disabled=false;
+    document.getElementById('loading').style.display='none';
+  }
+}
+
+function copySection(id){
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text);
+}
+</script>
+
+</body>
+</html>
